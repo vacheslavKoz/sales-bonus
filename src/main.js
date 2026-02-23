@@ -100,8 +100,8 @@ data.purchase_records.forEach(record => { // Чек
             // Посчитать прибыль: выручка минус себестоимость
              const profit = calculateProfit(item, product);
         // Увеличить общую накопленную прибыль (profit) у продавца  
-              seller.revenue+=revenue;
-              seller.profit += profit;
+              seller.revenue+=Number((seller.revenue + revenue).toFixed(2));
+              seller.profit += Number((seller.profit + profit).toFixed(2));
             // Учёт количества проданных товаров
             if (!seller.products_sold[item.sku]) {
                 seller.products_sold[item.sku] = 0;
