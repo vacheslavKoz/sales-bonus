@@ -99,8 +99,8 @@ data.purchase_records.forEach(record => { // Чек
             // Посчитать выручку (revenue) с учётом скидки через функцию calculateRevenue
             // Посчитать прибыль: выручка минус себестоимость
             // const profit = calculateProfit(item, product);
-             const revenue = Math.round(calculateRevenue(item, product) * 100);
-             const profit = Math.round(calculateProfit(item, product) * 100);
+             const revenue = calculateRevenue(item, product);
+             const profit = calculateProfit(item, product);
         // Увеличить общую накопленную прибыль (profit) у продавца  
               seller.revenue+= revenue;
               seller.profit += profit;
@@ -128,22 +128,25 @@ data.purchase_records.forEach(record => { // Чек
 sellerStats.forEach((seller, index) => {
        
         seller.bonus = calculateBonus(index, sellerStats.length, seller);
-        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).reduce((acc,value,currentIndex) => {acc.push({});
-acc[currentIndex].sku = value[0];
-acc[currentIndex].quantity = value[1];
-return acc },[]);
+        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).map(([sku, quantity]) => ({ sku, quantity }));
+
+
+//reduce((acc,value,currentIndex) => {acc.push({});
+//acc[currentIndex].sku = value[0];
+//acc[currentIndex].quantity = value[1];
+//return acc },[]);
 });
 
 return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
-        revenue: Number((seller.revenue / 100).toFixed(2)),
-        profit:  +((seller.profit / 100).toFixed(2)),
+        revenue: Number((seller.revenue/100).toFixed(2)),
+        profit: Number((seller.profit/100).toFixed(2)),
  //Number((seller.profit/100).toFixed(2)),
         sales_count: seller.sales_count,
         top_products: seller.top_products,
 // Массив объектов вида: { "sku": "SKU_008","quantity": 10}, топ-10 товаров продавца
-        bonus: Number((seller.bonus.toFixed(2)))
+        bonus: Number(seller.bonus.toFixed(2))
 // Число с двумя знаками после точки, бонус продавца
 }));
 
