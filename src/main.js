@@ -7,24 +7,15 @@
 function calculateSimpleRevenue(purchase, _product) {
 
  const { discount, sale_price, quantity } = purchase;
-    
-   
-       return Math.round(sale_price * 100 * quantity * (1 - discount / 100));
+ return  sale_price * quantity * (1 - discount / 100);
+
 }
-
-
 
 function calculateProfit(item, product) {
-    return (item.sale_price * item.quantity * (1 - item.discount / 100) - product.purchase_price * item.quantity) * 100;
+
+ return item.sale_price * item.quantity * (1 - item.discount / 100) - product.purchase_price * item.quantity;
+
 }
-
-
-//function calculateProfit(item, product) {
-
- // const revenueKop = calculateSimpleRevenue(item, product);
-  //  const costKop = Math.round(product.purchase_price * 100 * item.quantity);
-  //  return revenueKop - costKop;
-//}
 
 
    // @TODO: Расчет выручки от операции
@@ -38,9 +29,9 @@ function calculateProfit(item, product) {
  */
 function calculateBonusByProfit(index, total, seller) {
     // @TODO: Расчет бонуса от позиции в рейтинге
-    if ( index === 0) { return Math.round(0.15 * seller.profit); }
-if (index === 1 || index === 2) {  return Math.round(0.1 * seller.profit);}
-if (index > 2 && index <= total -2 ) { return Math.round(0.05 * seller.profit);}
+    if ( index === 0) { return 0.15*seller.profit; }
+if (index === 1 || index === 2) { return 0.1*seller.profit;}
+if (index > 2 && index <= total -2 ) { return 0.05*seller.profit;}
 return 0;
 
 }
@@ -112,8 +103,8 @@ data.purchase_records.forEach(record => { // Чек
              const revenue = calculateRevenue(item, product);
              const profit = calculateProfit(item, product);
         // Увеличить общую накопленную прибыль (profit) у продавца  
-              seller.revenue+= revenue;
-              seller.profit += profit;
+              seller.revenue+=  Math.round(revenue * 100);
+              seller.profit += profit * 100;
             // Учёт количества проданных товаров
             if (!seller.products_sold[item.sku]) {
                 seller.products_sold[item.sku] = 0;
@@ -138,17 +129,20 @@ data.purchase_records.forEach(record => { // Чек
 sellerStats.forEach((seller, index) => {
        
         seller.bonus = calculateBonus(index, sellerStats.length, seller);
-        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).reduce((acc,value,currentIndex) => {acc.push({});
-acc[currentIndex].sku = value[0];
-acc[currentIndex].quantity = value[1];
-return acc },[]);
+        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).map(([sku, quantity]) => ({ sku, quantity }));
+
+
+//reduce((acc,value,currentIndex) => {acc.push({});
+//acc[currentIndex].sku = value[0];
+//acc[currentIndex].quantity = value[1];
+//return acc },[]);
 });
 
 return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
         revenue: Number((seller.revenue/100).toFixed(2)),
-        profit:  Number((seller.profit/100).toFixed(2)),
+        profit: Number((seller.profit/100).toFixed(2)),
  //Number((seller.profit/100).toFixed(2)),
         sales_count: seller.sales_count,
         top_products: seller.top_products,
