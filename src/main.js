@@ -7,14 +7,24 @@
 function calculateSimpleRevenue(purchase, _product) {
 
  const { discount, sale_price, quantity } = purchase;
- return  sale_price * quantity * (1 - discount / 100);
+    
+   
+       return Math.round(sale_price * 100 * quantity * (1 - discount / 100));
 }
+
+
 
 function calculateProfit(item, product) {
-
- return item.sale_price * item.quantity * (1 - item.discount / 100) - product.purchase_price * item.quantity;
-
+    return (item.sale_price * item.quantity * (1 - item.discount / 100) - product.purchase_price * item.quantity) * 100;
 }
+
+
+//function calculateProfit(item, product) {
+
+ // const revenueKop = calculateSimpleRevenue(item, product);
+  //  const costKop = Math.round(product.purchase_price * 100 * item.quantity);
+  //  return revenueKop - costKop;
+//}
 
 
    // @TODO: Расчет выручки от операции
@@ -28,9 +38,9 @@ function calculateProfit(item, product) {
  */
 function calculateBonusByProfit(index, total, seller) {
     // @TODO: Расчет бонуса от позиции в рейтинге
-    if ( index === 0) { return 0.15*seller.profit; }
-if (index === 1 || index === 2) { return 0.1*seller.profit;}
-if (index > 2 && index <= total -2 ) { return 0.05*seller.profit;}
+    if ( index === 0) { return Math.round(0.15 * seller.profit); }
+if (index === 1 || index === 2) {  return Math.round(0.1 * seller.profit);}
+if (index > 2 && index <= total -2 ) { return Math.round(0.05 * seller.profit);}
 return 0;
 
 }
@@ -128,25 +138,22 @@ data.purchase_records.forEach(record => { // Чек
 sellerStats.forEach((seller, index) => {
        
         seller.bonus = calculateBonus(index, sellerStats.length, seller);
-        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).map(([sku, quantity]) => ({ sku, quantity }));
-
-
-//reduce((acc,value,currentIndex) => {acc.push({});
-//acc[currentIndex].sku = value[0];
-//acc[currentIndex].quantity = value[1];
-//return acc },[]);
+        seller.top_products = Object.entries(seller.products_sold).sort((a,b) => b[1]-a[1] ).slice(0,10).reduce((acc,value,currentIndex) => {acc.push({});
+acc[currentIndex].sku = value[0];
+acc[currentIndex].quantity = value[1];
+return acc },[]);
 });
 
 return sellerStats.map(seller => ({
         seller_id: seller.id,
         name: seller.name,
-        revenue: Number(seller.revenue.toFixed(2)),
-        profit: Number(seller.profit.toFixed(2)),
+        revenue: Number((seller.revenue/100).toFixed(2)),
+        profit:  Number((seller.profit/100).toFixed(2)),
  //Number((seller.profit/100).toFixed(2)),
         sales_count: seller.sales_count,
         top_products: seller.top_products,
 // Массив объектов вида: { "sku": "SKU_008","quantity": 10}, топ-10 товаров продавца
-        bonus: Number(seller.bonus.toFixed(2))
+        bonus: Number((seller.bonus/100).toFixed(2))
 // Число с двумя знаками после точки, бонус продавца
 }));
 
